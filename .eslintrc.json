@@ -16,7 +16,7 @@
     "no-sequences": "off",
     "consistent-return": "off",
     "camelcase": "off",
-    "class-methods-use-this": "off",
-    "max-len": "off"
+    "class-methods-use-this": "off"
+    // "max-len": "off"
   }
 }
