@@ -1,8 +1,7 @@
 class ExportsHandler {
-  constructor(playlistsService, producerService, consumerService, validator) {
+  constructor(playlistsService, producerService, validator) {
     this._playlistsService = playlistsService;
     this._producerService = producerService;
-    this._consumerService = consumerService;
     this._validator = validator;
     this.postExportPlaylistsHandler = this.postExportPlaylistsHandler.bind(this);
   }
@@ -18,7 +17,6 @@ class ExportsHandler {
     };
     const queue = 'export:playlists';
     await this._producerService.sendMessage(queue, JSON.stringify(message));
-    await this._consumerService.consumeMessage(queue);
     return h
       .response({
         status: 'success',

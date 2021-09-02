@@ -5,7 +5,6 @@ const Inert = require('@hapi/inert');
 const path = require('path');
 const ClientError = require('./exceptions/ClientError');
 const TokenManager = require('./tokenizer/TokenManager');
-const MailSender = require('./mailer/MailSender');
 
 const songs = require('./api/songs');
 const SongsService = require('./services/postgres/SongsService');
@@ -30,7 +29,6 @@ const CollaborationsService = require('./services/postgres/CollaborationsService
 
 const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
-const ConsumerService = require('./services/rabbitmq/ConsumerService');
 const ExportsValidator = require('./validator/exports');
 
 const uploads = require('./api/uploads');
@@ -45,14 +43,13 @@ const init = async () => {
   const authenticationsService = new AuthenticationsService();
   const cacheService = new CacheService();
   const collaborationsService = new CollaborationsService(cacheService);
-  const playlistSongsService = new PlaylistSongsService(cacheService);
+  const playlistSongsService = new PlaylistSongsService();
   const playlistsService = new PlaylistsService(
     playlistSongsService,
     songsService,
     collaborationsService,
+    cacheService,
   );
-  const mailSender = new MailSender();
-  const consumerService = new ConsumerService(playlistsService, mailSender);
   const storageService = new StorageService(
     path.resolve(__dirname, 'api/uploads/file/images'),
   );
@@ -159,7 +156,6 @@ const init = async () => {
       options: {
         playlistsService,
         producerService: ProducerService,
-        consumerService,
         validator: ExportsValidator,
       },
     },

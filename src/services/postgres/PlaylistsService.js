@@ -5,11 +5,17 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor(playlistSongsService, songsService, collaborationService) {
+  constructor(
+    playlistSongsService,
+    songsService,
+    collaborationService,
+    cacheService,
+  ) {
     this._pool = new Pool();
     this._collaborationService = collaborationService;
     this._playlistSongsService = playlistSongsService;
     this._songsService = songsService;
+    this._cacheService = cacheService;
   }
 
   async addPlaylist(payload) {
@@ -43,6 +49,7 @@ class PlaylistsService {
       values: [id],
     };
     await this._pool.query(query);
+    await this._cacheService.delete(`playlists:${id}`);
   }
 
   async verifyPlaylistOwner(playlistId, owner) {
@@ -63,18 +70,29 @@ class PlaylistsService {
   async addSongToPlaylist({ playlistId, songId }) {
     await this._songsService.getSongById(songId);
     await this._playlistSongsService.addPlaylistSong(playlistId, songId);
+    await this._cacheService.delete(`playlists:${playlistId}`);
   }
 
   async getSongsFromPlaylist(playlistId) {
-    const songs = await this._playlistSongsService.getPlaylistSongsById(
-      playlistId,
-    );
-    return songs;
+    try {
+      const songs = await this._cacheService.get(`playlists:${playlistId}`);
+      return JSON.parse(songs);
+    } catch (error) {
+      const songs = await this._playlistSongsService.getPlaylistSongsById(
+        playlistId,
+      );
+      await this._cacheService.set(
+        `playlists:${playlistId}`,
+        JSON.stringify(songs),
+      );
+      return songs;
+    }
   }
 
   async deleteSongsFromPlaylist({ playlistId, songId }) {
     await this._playlistSongsService.verifyPlaylistSong(playlistId, songId);
     await this._playlistSongsService.deletePlaylistSongById(playlistId, songId);
+    await this._cacheService.delete(`playlists:${playlistId}`);
   }
 
   async verifyPlaylistAccess(playlistId, owner) {
