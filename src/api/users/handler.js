@@ -6,21 +6,17 @@ class UsersHandler {
   }
 
   async postUserHandler(request, h) {
-    try {
-      this._validator.validateUserPayload(request.payload);
-      const userId = await this._service.addUser(request.payload);
-      return h
-        .response({
-          status: 'success',
-          message: 'User berhasil ditambahkan',
-          data: {
-            userId,
-          },
-        })
-        .code(201);
-    } catch (error) {
-      return error;
-    }
+    this._validator.validateUserPayload(request.payload);
+    const userId = await this._service.addUser(request.payload);
+    return h
+      .response({
+        status: 'success',
+        message: 'User berhasil ditambahkan',
+        data: {
+          userId,
+        },
+      })
+      .code(201);
   }
 }
 
