@@ -3,6 +3,7 @@ const hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const ClientError = require('./exceptions/ClientError');
 const TokenManager = require('./tokenizer/TokenManager');
+const MailSender = require('./mailer/MailSender');
 
 const songs = require('./api/songs');
 const SongsService = require('./services/postgres/SongsService');
@@ -27,6 +28,7 @@ const CollaborationsService = require('./services/postgres/CollaborationsService
 
 const _exports = require('./api/exports');
 const ProducerService = require('./services/rabbitmq/ProducerService');
+const ConsumerService = require('./services/rabbitmq/ConsumerService');
 const ExportsValidator = require('./validator/exports');
 
 const init = async () => {
@@ -38,8 +40,10 @@ const init = async () => {
   const playlistsService = new PlaylistsService(
     playlistSongsService,
     songsService,
-    collaborationsService
+    collaborationsService,
   );
+  const mailSender = new MailSender();
+  const consumerService = new ConsumerService(playlistsService, mailSender);
 
   const server = hapi.server({
     port: process.env.PORT,
@@ -138,7 +142,9 @@ const init = async () => {
     {
       plugin: _exports,
       options: {
-        service: ProducerService,
+        playlistsService,
+        producerService: ProducerService,
+        consumerService,
         validator: ExportsValidator,
       },
     },

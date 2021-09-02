@@ -23,6 +23,7 @@
     "joi": "^17.4.2",
     "nanoid": "^3.1.25",
     "node-pg-migrate": "^5.10.0",
+    "nodemailer": "^6.6.3",
     "pg": "^8.7.1"
   },
   "devDependencies": {
