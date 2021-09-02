@@ -16,6 +16,7 @@
   "dependencies": {
     "@hapi/hapi": "^20.1.5",
     "@hapi/jwt": "^2.1.0",
+    "amqplib": "^0.8.0",
     "bcrypt": "^5.0.1",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
