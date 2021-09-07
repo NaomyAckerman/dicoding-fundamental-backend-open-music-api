@@ -75,14 +75,22 @@ const init = async () => {
           })
           .code(response.status);
       }
-      if (response.output.statusCode === 500) {
+      if (response.output.statusCode === 401) {
         return h
           .response({
-            status: 'error',
-            message: 'Maaf, terjadi kegagalan pada server kami.',
+            status: 'fail',
+            message: 'Anda tidak berhak mengakses resource ini.',
           })
-          .code(500);
+          .code(401);
       }
+    }
+    if (response.isServer) {
+      return h
+        .response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server kami.',
+        })
+        .code(500);
     }
     return h.continue;
   });
