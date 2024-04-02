@@ -1,1 +1,1 @@
-# Open-Music-Dicoding
+# Dicoding Fundamental Backend - Open Music API
